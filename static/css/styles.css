@@ -1,0 +1,79 @@
+/* styles.css */
+
+/* Common styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+}
+
+header nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+header nav ul li {
+    display: inline;
+    margin-right: 10px;
+}
+
+header nav ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 5px 10px;
+}
+
+header nav ul li a:hover {
+    background-color: #575757;
+    border-radius: 4px;
+}
+
+main {
+    margin: 20px;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Стили для профиля */
+.profile-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.profile-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.profile-container img {
+    display: block;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    max-width: 100px;
+    height: auto;
+}
+
+.profile-container p {
+    font-size: 16px;
+    margin: 10px 0;
+}
