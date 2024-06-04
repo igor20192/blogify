@@ -18,7 +18,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     Actions:
     - When creating a new user, creates a user profile if it has not already been created.
     """
-    if created and isinstance(instance, User):
+    if created and isinstance(instance, User) and "test" not in argv:
         user = User.objects.filter(id=instance.id)
         if not Profile.objects.filter(user_id=instance.id) and user:
             Profile.objects.create(user=user[0])
