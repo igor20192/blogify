@@ -9,6 +9,21 @@ services:
       - .env.db
     ports:
       - 5432:5432
+  web:
+    build: .
+    command: >
+      bash -c "python manage.py makemigrations &&
+        python manage.py migrate &&
+        python manage.py runserver 0.0.0.0:8080"
+    restart: always
+    volumes:
+      - ./media/:/usr/src/blogify/media/
+    ports:
+      - 8080:8080
+    env_file:
+      - ./.env
+    depends_on:
+      - db
 
 volumes:
   postgres_data:
