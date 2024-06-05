@@ -163,3 +163,6 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
 }
+
+TELEGRAM_TOKEN = config("TELEGRAM_TOKEN")
+API_URL = config("API_URL")
