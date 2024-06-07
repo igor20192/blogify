@@ -1,4 +1,6 @@
 from rest_framework import generics, permissions
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from .models import Article
 from .serializers import ArticleSerializer
 from .permissions import IsAuthorOrAdmin
@@ -46,3 +48,24 @@ class ArticleDetail(generics.RetrieveUpdateDestroyAPIView):
             return [permissions.IsAuthenticated()]
         else:
             return [permissions.IsAuthenticated(), IsAuthorOrAdmin()]
+
+
+class LatestArticleView(APIView):
+    """
+    API endpoint that retrieves and returns the latest published article.
+
+    This view class provides a GET method that fetches the most recently published
+    article from the database using the `Article.objects.latest` queryset method.
+    It then serializes the article data using the `ArticleSerializer` and returns
+    a JSON response containing the serialized data.
+
+    This endpoint is useful for clients (e.g., mobile apps, web applications) that
+    need to display the latest article information.
+
+    Raises:
+        DoesNotExist: If no articles exist in the database."""
+
+    def get(self, request, format=None):
+        latest_article = Article.objects.latest("published_date")
+        serializer = ArticleSerializer(latest_article)
+        return Response(serializer.data)
