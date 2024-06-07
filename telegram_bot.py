@@ -7,18 +7,23 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 from asgiref.sync import sync_to_async
 
 logging.basicConfig(
-    filename="telegram_bot.log", format="[%(asctime)s] [%(levelname)s] => %(message)s]"
+    filename="telegram_bot.log",
+    format="[%(asctime)s] [%(levelname)s] => %(message)s]",
+    level=logging.INFO,
 )
 
-# Установите переменную окружения для файла настроек Django
+# Set the environment variable for the Django configuration file
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "blogify.settings")
 
-# Инициализируйте Django
+# Initialize Django
 django.setup()
 
-# Теперь вы можете импортировать модели и доступ к настройкам
-from blog.models import Subscription  # Импортируйте ваши модели
+# You can now import models and access settings
 from django.conf import settings
+from blog.models import Subscriber  # Import subscriber model
+
+# Create an Application Object
+application = Application.builder().token(settings.TELEGRAM_TOKEN).build()
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -34,7 +39,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         await update.message.reply_text(
-            "Available commands:\n/start - Welcome message\n/help - List of commands\n/latest - Get the latest article.\n/subscribe - "
+            "Available commands:\n/start - Welcome message\n/help - List of commands\n/latest - Get the latest article.\n/subscribe - Subscribe to blog updates."
         )
     except Exception as e:
         logging.exception(f"Error in help command: {e}")
@@ -61,28 +66,35 @@ async def latest(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         response = await get_latest_article()
         if response:
-            message = f"Fresh article:\n\n{response['title']}\n\n{response['content']}"
+            message = f"Recent article:\n\n{response['title']}\n\n{response['content']}"
         else:
-            message = "It was not possible to get a recent article."
+            message = "Couldn’t get a fresh article."
+
         await update.message.reply_text(message)
     except Exception as e:
-        logging.exception(f"Error in latest command: {e}")
+        logging.error(f"Error in latest command: {e}")
         await update.message.reply_text("An error occurred. Please try again later.")
 
 
 async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    chat_id = await update.message.chat_id
-    user = await update.message.from_user
-    sync_to_async(Subscription.objects.get_or_create(user=user, chat_id=chat_id))
-    await update.message.reply_text("Вы подписаны на обновления блога.")
+    try:
+        chat_id = update.message.chat_id
+        subscriber, created = await sync_to_async(Subscriber.objects.get_or_create)(
+            chat_id=chat_id
+        )
+        if created:
+            message = "You have successfully subscribed to the blog updates."
+        else:
+            message = "You have already subscribed to the blog updates."
+        await update.message.reply_text(message)
+    except Exception as e:
+        logging.error(f"Error in subscribe command: {e}")
+        await update.message.reply_text("An error occurred. Please try again later.")
 
 
 def main():
     try:
-        # Создаем объект приложения
-        application = Application.builder().token(settings.TELEGRAM_TOKEN).build()
-
-        # Добавляем обработчики команд
+        # add software handlers
         application.add_handler(CommandHandler("start", start))
         application.add_handler(CommandHandler("help", help_command))
         application.add_handler(CommandHandler("latest", latest))
@@ -90,7 +102,7 @@ def main():
 
         application.run_polling(allowed_updates=Update.ALL_TYPES)
     except Exception as e:
-        logging.exception(f"Error in main function: {e}")
+        logging.error(f"Error in main function: {e}")
 
 
 if __name__ == "__main__":
