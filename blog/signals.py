@@ -1,8 +1,7 @@
-from re import T
 from django import dispatch
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Article
+from blog.models import Article
 import asyncio
 from telegram_notifications import notify_subscribers
 
@@ -30,7 +29,8 @@ def article_post_save(sender, instance, created, **kwargs):
                         was updated (`False`).
         **kwargs: Additional keyword arguments passed by the signal.
     """
-    if created and instance.pk and not instance.notified:
-        instance.notified = True
-        instance.save(update_fields=["notified"])
-        asyncio.run(notify_subscribers(instance))
+    if isinstance(instance, Article):
+        if created and instance.pk and not instance.notified:
+            instance.notified = True
+            instance.save(update_fields=["notified"])
+            asyncio.run(notify_subscribers(instance))
