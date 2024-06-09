@@ -1,9 +1,11 @@
+import logging
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Article, Subscriber
 from .serializers import ArticleSerializer, SubscriberSerializer
 from .permissions import IsAuthorOrAdmin
+from decouple import config
 
 
 class ArticleListCreate(generics.ListCreateAPIView):
@@ -73,44 +75,50 @@ class LatestArticleView(APIView):
 
 class SubscriberApiView(APIView):
     """
-    API view to handle subscription requests.
+    API view to handle subscriber creation.
 
-    This view processes POST requests to create a new subscription based on the provided
-    chat ID. If the chat ID is already subscribed, it returns a message indicating that
-    the user is already subscribed. Otherwise, it creates a new subscription and returns
-    a success message.
-
-    Attributes:
-        permission_classes (list): List of permission classes that determine access to the view.
+    This view handles the POST request to create a subscriber. It requires
+    `chat_id`, `username`, and `password` to be provided in the request data.
+    If the provided username and password match the expected values from the
+    environment variables, a new subscriber is created if it doesn't already exist.
 
     Methods:
-        post(request, *args, **kwargs): Handles POST requests to create a new subscription.
+        post(request, *args, **kwargs): Handles the POST request to create a subscriber.
     """
-
-    permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
         """
-        Handles POST requests to create a new subscription.
+        Handle the POST request to create a new subscriber.
 
         Args:
-            request (Request): The HTTP request object containing data for creating a new subscription.
-            *args: Additional positional arguments.
-            **kwargs: Additional keyword arguments.
+            request (Request): The HTTP request object containing subscriber data.
 
         Returns:
-            Response: A response object containing a message and an appropriate HTTP status code.
-                - If the subscription is created successfully, returns a 201 Created status.
-                - If the chat ID is already subscribed, returns a 200 OK status.
+            Response: The HTTP response object containing a success or error message.
         """
+
         chat_id = request.data.get("chat_id")
-        subscriber, created = Subscriber.objects.get_or_create(chat_id=chat_id)
-        if created:
+        username = request.data.get("username")
+        password = request.data.get("password")
+        if not chat_id or not username or not password:
             return Response(
-                {"message": "Subscription created successfully."},
-                status=status.HTTP_201_CREATED,
+                {"message": "Missing required fields."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        else:
-            return Response(
-                {"message": "Already subscribed."}, status=status.HTTP_200_OK
-            )
+        if username == config("TELEGRAM_USER") and password == config(
+            "TELEGRAM_PASSWORD"
+        ):
+            subscriber, created = Subscriber.objects.get_or_create(chat_id=chat_id)
+            if created:
+                return Response(
+                    {"message": "Subscription created successfully."},
+                    status=status.HTTP_201_CREATED,
+                )
+            else:
+                return Response(
+                    {"message": "Already subscribed."}, status=status.HTTP_200_OK
+                )
+        return Response(
+            {"message": "Incorrect login or password"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
