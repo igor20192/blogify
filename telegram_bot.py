@@ -69,6 +69,8 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         chat_id = update.message.chat_id
         data = {
+            "username": config("TELEGRAM_USER"),
+            "password": config("TELEGRAM_PASSWORD"),
             "chat_id": chat_id,
         }
         async with aiohttp.ClientSession() as session:
