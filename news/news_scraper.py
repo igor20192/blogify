@@ -1,22 +1,9 @@
-import os
-import sys
 import aiohttp
 import asyncio
-import django
 import logging
 import requests
 from decouple import config
 from bs4 import BeautifulSoup
-from django.conf import settings
-
-
-# Define the path to the project root
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# Add project root to system path
-sys.path.append(project_root)
-# Set the environment variable for the Django configuration file
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "blogify.settings")
-django.setup()
 
 
 # Configure logging
