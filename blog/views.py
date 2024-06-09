@@ -72,9 +72,37 @@ class LatestArticleView(APIView):
 
 
 class SubscriberApiView(APIView):
+    """
+    API view to handle subscription requests.
+
+    This view processes POST requests to create a new subscription based on the provided
+    chat ID. If the chat ID is already subscribed, it returns a message indicating that
+    the user is already subscribed. Otherwise, it creates a new subscription and returns
+    a success message.
+
+    Attributes:
+        permission_classes (list): List of permission classes that determine access to the view.
+
+    Methods:
+        post(request, *args, **kwargs): Handles POST requests to create a new subscription.
+    """
+
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests to create a new subscription.
+
+        Args:
+            request (Request): The HTTP request object containing data for creating a new subscription.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: A response object containing a message and an appropriate HTTP status code.
+                - If the subscription is created successfully, returns a 201 Created status.
+                - If the chat ID is already subscribed, returns a 200 OK status.
+        """
         chat_id = request.data.get("chat_id")
         subscriber, created = Subscriber.objects.get_or_create(chat_id=chat_id)
         if created:
