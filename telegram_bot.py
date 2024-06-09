@@ -14,18 +14,9 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
-# Set the environment variable for the Django configuration file
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "blogify.settings")
-
-# Initialize Django
-django.setup()
-
-# You can now import models and access settings
-from django.conf import settings
-
 
 # Create an Application Object
-application = Application.builder().token(settings.TELEGRAM_TOKEN).build()
+application = Application.builder().token(config("TELEGRAM_TOKEN")).build()
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -52,7 +43,7 @@ async def get_latest_article():
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{settings.API_URL}/api/articles/latest/"
+                f"{config('API_URL')}/api/articles/latest/"
             ) as response:
                 if response.status == 200:
                     return await response.json()
@@ -86,7 +77,7 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         }
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                f"{settings.API_URL}/api/subscribe/", json=data
+                f"{config('API_URL')}/api/subscribe/", json=data
             ) as response:
 
                 if response.status == 201:
