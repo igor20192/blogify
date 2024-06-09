@@ -1,11 +1,7 @@
-import json
-import os
 import logging
 import aiohttp
-import django
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
-from asgiref.sync import sync_to_async
 from decouple import config
 
 logging.basicConfig(
