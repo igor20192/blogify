@@ -31,7 +31,7 @@ def fetch_news():
         response = requests.get(url)
         response.raise_for_status()  # Checking for HTTP errors
     except requests.RequestException as e:
-        logging.error(f"Error fetching the page: {e}")
+        logging.exception(f"Error fetching the page: {e}")
         return []
 
     soup = BeautifulSoup(response.text, "html.parser")
