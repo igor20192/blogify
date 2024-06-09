@@ -245,8 +245,7 @@ blogify/
 ├── manage.py            # Django project management master script
 ├── requirements.txt     # Project dependencies
 └── telegram_bot.py      # Telegram bot script
-
-
+```
 
 ### Licence
 
