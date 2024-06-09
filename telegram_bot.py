@@ -1,3 +1,4 @@
+import json
 import os
 import logging
 import aiohttp
@@ -5,6 +6,7 @@ import django
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 from asgiref.sync import sync_to_async
+from decouple import config
 
 logging.basicConfig(
     filename="telegram_bot.log",
@@ -20,7 +22,7 @@ django.setup()
 
 # You can now import models and access settings
 from django.conf import settings
-from blog.models import Subscriber  # Import subscriber model
+
 
 # Create an Application Object
 application = Application.builder().token(settings.TELEGRAM_TOKEN).build()
@@ -79,14 +81,19 @@ async def latest(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         chat_id = update.message.chat_id
-        subscriber, created = await sync_to_async(Subscriber.objects.get_or_create)(
-            chat_id=chat_id
-        )
-        if created:
-            message = "You have successfully subscribed to the blog updates."
-        else:
-            message = "You have already subscribed to the blog updates."
-        await update.message.reply_text(message)
+        data = {
+            "chat_id": chat_id,
+        }
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{settings.API_URL}/api/subscribe/", json=data
+            ) as response:
+
+                if response.status == 201:
+                    message = "You have successfully subscribed to the blog updates."
+                else:
+                    message = "You have already subscribed to the blog updates."
+                await update.message.reply_text(message)
     except Exception as e:
         logging.error(f"Error in subscribe command: {e}")
         await update.message.reply_text("An error occurred. Please try again later.")
