@@ -208,8 +208,13 @@ RUN apt-get update && \
 # copy project
 COPY . .
 
-### `Structure of the project`
+# Blogify Project
 
+Blogify is a Django-based web application for managing and displaying articles. It includes a news scraping feature and a Telegram bot for notifications.
+
+## Project Structure
+
+```plaintext
 blogify/
 ├── blogify_env/         # virtual environment
 ├── blog/                # Django application for managing articles
@@ -236,10 +241,12 @@ blogify/
 │   ├── __init__.py
 │   ├── settings.py      # Django settings
 │   ├── urls.py          # Project routing
-│   └── wsgi.py          # WSGI settings for Defla
+│   └── wsgi.py          # WSGI settings for deployment
 ├── manage.py            # Django project management master script
-├── requirements.txt     # Project dependence
+├── requirements.txt     # Project dependencies
 └── telegram_bot.py      # Telegram bot script
+
+
 
 ### Licence
 
