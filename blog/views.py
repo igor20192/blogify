@@ -1,8 +1,8 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Article
-from .serializers import ArticleSerializer
+from .models import Article, Subscriber
+from .serializers import ArticleSerializer, SubscriberSerializer
 from .permissions import IsAuthorOrAdmin
 
 
@@ -69,3 +69,20 @@ class LatestArticleView(APIView):
         latest_article = Article.objects.latest("published_date")
         serializer = ArticleSerializer(latest_article)
         return Response(serializer.data)
+
+
+class SubscriberApiView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        chat_id = request.data.get("chat_id")
+        subscriber, created = Subscriber.objects.get_or_create(chat_id=chat_id)
+        if created:
+            return Response(
+                {"message": "Subscription created successfully."},
+                status=status.HTTP_201_CREATED,
+            )
+        else:
+            return Response(
+                {"message": "Already subscribed."}, status=status.HTTP_200_OK
+            )
