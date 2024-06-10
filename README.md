@@ -179,6 +179,7 @@ volumes:
   postgres_data:
 ```
 ### `Dockerfile`
+```Dockerfile
 # pull official base image
 FROM python:3.12-bullseye
 
@@ -207,7 +208,7 @@ RUN apt-get update && \
 
 # copy project
 COPY . .
-
+```
 # Blogify Project
 
 Blogify is a Django-based web application for managing and displaying articles. It includes a news scraping feature and a Telegram bot for notifications.
